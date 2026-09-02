@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinelle PME — audit cyber flash</title>
+  <meta name="description" content="Audit cyber flash gratuit pour PME : 24 questions, un score de maturité, un plan d'action 30/60/90 jours et votre exposition NIS2. Basé sur le guide d'hygiène ANSSI.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sentinelle PME — audit cyber flash">
+  <meta property="og:description" content="24 questions, 10 minutes : votre score de maturité cyber, vos 3 risques principaux et un plan d'action 30/60/90 jours. Gratuit, basé sur le guide d'hygiène ANSSI et NIS2.">
+  <meta property="og:url" content="https://sentinelle-pme.vercel.app">
+  <meta property="og:image" content="https://sentinelle-pme.vercel.app/og.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">🛡️ <strong>Sentinelle</strong> PME</div>
+      <div class="topbar-note">Basé sur le guide d'hygiène ANSSI &amp; la directive NIS2 · Gratuit · Aucune donnée envoyée</div>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- Écran 1 : accueil + profil -->
+    <section id="ecran-accueil" class="ecran">
+      <div class="hero">
+        <div class="hero-texte">
+          <h1>Où en est la cybersécurité de votre entreprise&nbsp;?</h1>
+          <p class="hero-sub">24 questions, 10 minutes, sans jargon. À la fin&nbsp;: votre score de maturité,
+          vos 3 risques principaux et un plan d'action priorisé sur 30, 60 et 90 jours.</p>
+          <ul class="hero-preuves">
+            <li>Basé sur le guide d'hygiène de l'<strong>ANSSI</strong></li>
+            <li>Chaque recommandation citée <strong>NIS2 / ANSSI</strong></li>
+            <li>Tout reste dans votre navigateur — <strong>aucune donnée transmise</strong></li>
+          </ul>
+        </div>
+
+        <div class="carte profil-carte">
+          <h2>Votre entreprise</h2>
+          <label for="profil-secteur">Secteur d'activité</label>
+          <select id="profil-secteur"></select>
+          <label for="profil-effectif">Effectif</label>
+          <select id="profil-effectif"></select>
+          <button id="btn-commencer" class="btn btn-principal">Commencer l'audit</button>
+          <button id="btn-demo" class="btn btn-secondaire">Voir un rapport d'exemple</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Écran 2 : questionnaire (rendu par app.js) -->
+    <section id="ecran-questions" class="ecran" hidden>
+      <div class="progression">
+        <div class="progression-texte" id="progression-texte"></div>
+        <div class="progression-barre"><div id="progression-remplie"></div></div>
+      </div>
+      <div id="conteneur-question"></div>
+    </section>
+
+    <!-- Écran 3 : rapport (rendu par app.js) -->
+    <section id="ecran-rapport" class="ecran" hidden>
+      <div id="conteneur-rapport"></div>
+    </section>
+
+  </main>
+
+  <footer class="pied">
+    <p>Projet portfolio — Amir Mohand Arezki · B2 Cybersécurité, Ynov Aix-en-Provence ·
+    <a href="https://mohand-portfolio-sage.vercel.app" target="_blank" rel="noopener">mohand-portfolio-sage.vercel.app</a></p>
+    <p class="pied-avertissement">Cet audit flash déclaratif ne constitue ni un audit de conformité, ni un conseil juridique.
+    L'indication de périmètre NIS2 est indicative.</p>
+  </footer>
+
+  <script src="data/questions.js"></script>
+  <script src="src/engine.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

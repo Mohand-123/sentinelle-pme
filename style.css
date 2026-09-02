@@ -1,0 +1,283 @@
+/* Sentinelle PME — registre produit, personnalité "cabinet d'audit".
+   Typo : Source Serif 4 (titres éditoriaux) + Public Sans (UI, institutionnel).
+   Palette OKLCH : bleu nuit engagé + pétrole en action, neutres froids (pas de crème). */
+
+:root {
+  --encre: oklch(0.26 0.05 250);          /* bleu nuit — texte + bandeaux */
+  --encre-2: oklch(0.42 0.035 250);       /* texte secondaire (AA sur fond clair) */
+  --fond: oklch(0.965 0.006 240);         /* gris froid très clair */
+  --carte: #ffffff;
+  --bord: oklch(0.89 0.012 245);
+  --bord-fort: oklch(0.78 0.02 245);
+
+  --accent: oklch(0.50 0.095 215);        /* pétrole — actions & sélection */
+  --accent-fonce: oklch(0.42 0.09 215);
+  --accent-teinte: oklch(0.95 0.02 210);
+  --accent-clair-sur-sombre: oklch(0.82 0.07 200);
+
+  --ok: oklch(0.50 0.13 150);
+  --ok-teinte: oklch(0.95 0.03 150);
+  --moyen: oklch(0.55 0.12 65);
+  --moyen-teinte: oklch(0.96 0.035 80);
+  --alerte: oklch(0.48 0.16 25);
+  --alerte-teinte: oklch(0.955 0.02 25);
+
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "Public Sans", "Segoe UI", system-ui, sans-serif;
+
+  --r-s: 8px;
+  --r-m: 12px;
+  --r-l: 16px;
+
+  --ombre-1: 0 1px 2px oklch(0.26 0.05 250 / 0.07);
+
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--fond);
+  color: var(--encre);
+  line-height: 1.6;
+  overflow-x: clip; /* le bandeau pleine largeur (50vw) ne doit jamais créer de scroll horizontal */
+}
+
+h1, h2, h3 { text-wrap: balance; }
+
+/* ---------- Barre du haut ---------- */
+.topbar { background: var(--encre); color: #fff; }
+.topbar-inner {
+  max-width: 960px; margin: 0 auto; padding: 14px 24px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.logo { font-size: 1.05rem; letter-spacing: .01em; }
+.logo strong { color: var(--accent-clair-sur-sombre); font-weight: 700; }
+.topbar-note { font-size: .78rem; color: oklch(0.88 0.01 240); }
+
+/* ---------- Structure ---------- */
+main { max-width: 960px; margin: 0 auto; padding: 40px 24px 72px; }
+.ecran[hidden] { display: none; }
+
+.carte {
+  background: var(--carte); border: 1px solid var(--bord); border-radius: var(--r-l);
+  padding: 28px 30px; box-shadow: var(--ombre-1);
+}
+
+/* ---------- Accueil : bandeau sombre + carte flottante ---------- */
+#ecran-accueil { position: relative; }
+#ecran-accueil::before {
+  content: ""; position: absolute; inset: -40px calc(50% - 50vw) -24px;
+  background: linear-gradient(160deg, var(--encre), oklch(0.30 0.06 235));
+  z-index: -1;
+}
+
+.hero {
+  display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px;
+  align-items: center; padding: 40px 0 8px;
+}
+.hero > * { min-width: 0; } /* sans ça, l'option la plus longue du <select> impose sa largeur à la grille */
+.hero-texte { color: #fff; }
+.hero h1 {
+  font-family: var(--serif); font-weight: 700;
+  font-size: clamp(1.9rem, 4.2vw, 2.75rem);
+  line-height: 1.15; letter-spacing: -0.015em; margin-bottom: 18px;
+}
+.hero-sub { color: oklch(0.92 0.008 240); max-width: 52ch; margin-bottom: 22px; }
+
+.hero-preuves { list-style: none; padding: 0; display: grid; gap: 9px; }
+.hero-preuves li {
+  padding-left: 26px; position: relative; font-size: .92rem; color: oklch(0.90 0.01 240);
+}
+.hero-preuves li::before {
+  content: "✓"; position: absolute; left: 0; top: 0;
+  color: var(--accent-clair-sur-sombre); font-weight: 700;
+}
+.hero-preuves strong { color: #fff; }
+
+.profil-carte { align-self: start; }
+.profil-carte h2 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 12px; }
+.profil-carte label { display: block; font-size: .82rem; font-weight: 600; margin: 14px 0 5px; color: var(--encre-2); }
+.profil-carte select {
+  width: 100%; padding: 11px 12px; border: 1px solid var(--bord-fort); border-radius: var(--r-s);
+  font-size: .95rem; font-family: inherit; background: #fff; color: var(--encre);
+}
+.profil-carte select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ---------- Boutons ---------- */
+.btn {
+  display: inline-block; border: none; border-radius: var(--r-s); cursor: pointer;
+  font-family: inherit; font-size: .98rem; font-weight: 600; padding: 13px 22px;
+  transition: background-color .18s cubic-bezier(.22,1,.36,1), transform .18s cubic-bezier(.22,1,.36,1);
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn:active { transform: translateY(1px); }
+.btn-principal { background: var(--accent); color: #fff; width: 100%; margin-top: 22px; }
+.btn-principal:hover { background: var(--accent-fonce); }
+.btn-secondaire { background: transparent; color: var(--accent); border: 1px solid var(--bord-fort); width: 100%; margin-top: 10px; }
+.btn-secondaire:hover { background: var(--accent-teinte); }
+
+/* ---------- Questionnaire ---------- */
+#ecran-questions { max-width: 680px; margin: 0 auto; }
+
+.progression { margin-bottom: 20px; }
+.progression-texte { font-size: .85rem; font-weight: 500; color: var(--encre-2); margin-bottom: 8px; }
+.progression-barre { height: 6px; background: var(--bord); border-radius: 99px; overflow: hidden; }
+#progression-remplie { height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .3s cubic-bezier(.22,1,.36,1); }
+
+#conteneur-question .carte { animation: entree-question .22s cubic-bezier(.22,1,.36,1); }
+@keyframes entree-question {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.q-domaine { font-size: .85rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+.q-texte {
+  font-family: var(--serif); font-size: 1.35rem; font-weight: 600;
+  line-height: 1.3; margin-bottom: 10px;
+}
+.q-aide { color: var(--encre-2); font-size: .92rem; max-width: 62ch; margin-bottom: 22px; }
+
+.q-choix { display: grid; gap: 10px; }
+.q-choix button {
+  text-align: left; padding: 14px 16px; border: 1.5px solid var(--bord-fort); border-radius: var(--r-m);
+  background: #fff; font-family: inherit; font-size: 1rem; color: var(--encre); cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+}
+.q-choix button:hover { border-color: var(--accent); background: var(--accent-teinte); }
+.q-choix button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.q-choix button.choisi { border-color: var(--accent); background: var(--accent-teinte); box-shadow: inset 0 0 0 1px var(--accent); }
+.q-choix .choix-libelle { font-weight: 600; }
+.q-choix .choix-detail { display: block; font-size: .82rem; color: var(--encre-2); margin-top: 2px; }
+
+.q-nav { margin-top: 20px; display: flex; justify-content: space-between; }
+.q-retour {
+  background: none; border: none; color: var(--encre-2); cursor: pointer;
+  font-family: inherit; font-size: .9rem; text-decoration: underline; text-underline-offset: 3px; padding: 4px;
+}
+.q-retour:hover { color: var(--encre); }
+.q-retour:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- Rapport ---------- */
+.rapport-entete { text-align: center; margin-bottom: 30px; }
+.rapport-entete h1 { font-family: var(--serif); font-size: 1.8rem; letter-spacing: -0.01em; margin-bottom: 6px; }
+.rapport-date { color: var(--encre-2); font-size: .88rem; }
+
+.score-global {
+  display: flex; align-items: center; justify-content: center; gap: 32px;
+  margin: 26px 0 36px; flex-wrap: wrap;
+}
+.score-anneau {
+  --pct: 0; --col: var(--accent);
+  width: 148px; height: 148px; border-radius: 50%; flex: none;
+  background: conic-gradient(var(--col) calc(var(--pct) * 1%), var(--bord) 0);
+  display: grid; place-items: center;
+}
+.score-coeur {
+  width: 116px; height: 116px; border-radius: 50%; background: var(--carte);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: var(--ombre-1);
+}
+.score-coeur .pct { font-size: 2.1rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-coeur .sur { font-size: .7rem; color: var(--encre-2); margin-top: 4px; }
+
+.score-verdict { max-width: 400px; }
+.score-verdict .niveau { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+
+.anneau-solide   { --col: var(--ok); }
+.anneau-correct  { --col: oklch(0.55 0.12 130); }
+.anneau-fragile  { --col: var(--moyen); }
+.anneau-critique { --col: var(--alerte); }
+.niveau-solide   { background: var(--ok); }
+.niveau-correct  { background: oklch(0.55 0.12 130); }
+.niveau-fragile  { background: var(--moyen); }
+.niveau-critique { background: var(--alerte); }
+.texte-solide   { color: var(--ok); }
+.texte-correct  { color: oklch(0.48 0.11 130); }
+.texte-fragile  { color: oklch(0.50 0.11 65); }
+.texte-critique { color: var(--alerte); }
+
+.rapport-section { margin-bottom: 36px; }
+.rapport-section h2 {
+  font-family: var(--serif); font-size: 1.25rem; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--bord-fort);
+}
+
+.barres-domaines { display: grid; gap: 11px; }
+.barre-domaine { display: grid; grid-template-columns: 220px 1fr 52px; gap: 14px; align-items: center; font-size: .92rem; }
+.barre-fond { height: 10px; background: var(--bord); border-radius: 99px; overflow: hidden; }
+.barre-remplie { height: 100%; border-radius: 99px; }
+.barre-pct { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.risque {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--alerte-teinte); border: 1px solid oklch(0.85 0.05 25);
+  border-radius: var(--r-m); padding: 14px 16px; margin-bottom: 10px;
+}
+.risque .r-rang {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--alerte); color: #fff; font-weight: 700; font-size: .9rem;
+  display: grid; place-items: center;
+}
+.risque .r-domaine { font-size: .78rem; font-weight: 700; color: var(--alerte); }
+.risque .r-question { font-weight: 500; }
+
+.horizon-bloc { margin-bottom: 24px; }
+.horizon-titre {
+  display: inline-block; font-size: .82rem; font-weight: 700; color: #fff;
+  background: var(--encre); border-radius: 6px; padding: 5px 12px; margin-bottom: 12px;
+}
+.action {
+  background: var(--carte); border: 1px solid var(--bord); border-radius: var(--r-m);
+  padding: 13px 16px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start;
+}
+.action .a-poids { font-size: 1.05rem; line-height: 1.4; }
+.action .a-label { font-weight: 600; }
+.action .a-meta { font-size: .8rem; color: var(--encre-2); margin-top: 2px; }
+
+.nis2-carte { background: var(--accent-teinte); border-color: oklch(0.82 0.05 215); }
+.nis2-statut { font-family: var(--serif); font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; }
+.nis2-avertissement { font-size: .8rem; color: var(--encre-2); margin-top: 12px; font-style: italic; }
+
+.rapport-actions { text-align: center; margin-top: 32px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.rapport-actions .btn { width: auto; margin: 0; }
+
+/* ---------- Pied ---------- */
+.pied {
+  max-width: 960px; margin: 0 auto; padding: 24px; text-align: center;
+  font-size: .8rem; color: var(--encre-2); border-top: 1px solid var(--bord);
+}
+.pied a { color: var(--accent); }
+.pied-avertissement { margin-top: 6px; font-style: italic; }
+
+/* ---------- Mouvement réduit ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #conteneur-question .carte { animation: none; }
+  #progression-remplie, .btn, .q-choix button { transition: none; }
+}
+
+/* ---------- Impression (Ctrl+P → PDF) ---------- */
+@media print {
+  .topbar, .pied, .rapport-actions, .progression { display: none; }
+  body { background: #fff; }
+  main { padding: 0; max-width: none; }
+  .carte, .action, .risque { box-shadow: none; break-inside: avoid; }
+  .rapport-section { break-inside: avoid; }
+  .score-anneau { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 800px) {
+  .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 16px; }
+  .hero-texte { text-align: center; }
+  .hero-preuves { justify-items: center; }
+  .hero-preuves li { text-align: left; }
+}
+@media (max-width: 640px) {
+  main { padding: 28px 16px 56px; }
+  .carte { padding: 22px 18px; }
+  .barre-domaine { grid-template-columns: 1fr; gap: 4px; }
+  .barre-pct { text-align: left; }
+  .topbar-inner { justify-content: center; text-align: center; }
+}
