@@ -203,6 +203,14 @@
         ${planHtml}
       </div>
 
+      <div class="rapport-section" id="section-consultant" hidden>
+        <h2>Lecture du consultant</h2>
+        <div class="carte consultant-carte">
+          <div id="consultant-contenu" class="consultant-attente">Analyse en cours de rédaction…</div>
+          <p class="consultant-note">Rédigée par IA (Claude) à partir de vos seuls résultats chiffrés — le score, lui, est calculé par un moteur déterministe.</p>
+        </div>
+      </div>
+
       <div class="rapport-section">
         <h2>Et la directive NIS2 ?</h2>
         <div class="carte nis2-carte">
@@ -225,6 +233,42 @@
       etat.index = 0;
       afficher("accueil");
     });
+
+    chargerAnalyseConsultant(resultat, risques, plan);
+  }
+
+  // v2 IA : demande l'analyse rédigée à la fonction serverless.
+  // Ne tourne que servi en HTTP (pas en file://) ; en cas d'échec ou d'API non
+  // configurée, la section reste masquée — le rapport est complet sans elle.
+  async function chargerAnalyseConsultant(resultat, risques, plan) {
+    if (!location.protocol.startsWith("http")) return;
+    const section = $("#section-consultant");
+    const contenu = $("#consultant-contenu");
+    section.hidden = false;
+    try {
+      const rep = await fetch("/api/narrative", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profil: etat.profil,
+          global: resultat.global,
+          parDomaine: resultat.parDomaine.map((d) => ({ nom: d.nom, pct: d.pct })),
+          risques: risques.map((r) => ({ question: r.question })),
+          actions: plan.actions.slice(0, 8).map((a) => a.label),
+        }),
+      });
+      if (!rep.ok) throw new Error(String(rep.status));
+      const { narrative } = await rep.json();
+      contenu.classList.remove("consultant-attente");
+      contenu.textContent = "";
+      for (const paragraphe of narrative.split(/\n\s*\n/)) {
+        const p = document.createElement("p");
+        p.textContent = paragraphe.trim();
+        contenu.appendChild(p);
+      }
+    } catch {
+      section.hidden = true;
+    }
   }
 
   /* ---------- Mode démo : rapport d'exemple pré-rempli ---------- */

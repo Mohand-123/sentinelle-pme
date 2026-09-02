@@ -1,0 +1,12 @@
+{
+  "name": "sentinelle-pme",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Audit cyber flash pour PME — scoring déterministe + analyse rédigée par IA",
+  "scripts": {
+    "test": "node test/smoke.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0"
+  }
+}

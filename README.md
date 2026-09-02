@@ -37,5 +37,5 @@ Le périmètre NIS2 affiché est **indicatif** (basé sur secteur + taille) — 
 ## Roadmap
 
 - **v1 (fait)** : questionnaire 8 domaines, scoring pondéré, rapport 30/60/90 j, indication NIS2, impression PDF.
-- **v2** : couche IA — narratif du rapport et recommandations contextualisées générés via l'API Claude (fonction serverless Vercel, clé API requise). Le moteur de scoring reste déterministe ; l'IA rédige, elle ne note pas.
+- **v2 (fait)** : « Lecture du consultant » — analyse rédigée par l'API Claude (`api/narrative.js`, fonction serverless Vercel, modèle `claude-opus-5`). Le moteur de scoring reste déterministe ; **l'IA rédige, elle ne note pas**. Sécurité : aucun texte libre de l'utilisateur n'entre dans le prompt (validation par liste blanche contre le référentiel côté serveur), corps de requête plafonné, `max_tokens` capé, rate-limit par IP. Sans `ANTHROPIC_API_KEY` configurée sur Vercel, l'endpoint répond 503 et le rapport s'affiche sans la section — dégradation propre.
 - **v3** : export PSSI (politique de sécurité) pré-remplie à partir des réponses ; suivi dans le temps (re-audit et delta).

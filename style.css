@@ -236,6 +236,17 @@ main { max-width: 960px; margin: 0 auto; padding: 40px 24px 72px; }
 .action .a-label { font-weight: 600; }
 .action .a-meta { font-size: .8rem; color: var(--encre-2); margin-top: 2px; }
 
+.consultant-carte p { max-width: 68ch; }
+.consultant-carte p + p { margin-top: 12px; }
+.consultant-attente { color: var(--encre-2); font-style: italic; }
+@keyframes attente-pulse { 50% { opacity: .55; } }
+.consultant-attente { animation: attente-pulse 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .consultant-attente { animation: none; } }
+.consultant-note {
+  margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--bord);
+  font-size: .78rem; color: var(--encre-2); font-style: italic;
+}
+
 .nis2-carte { background: var(--accent-teinte); border-color: oklch(0.82 0.05 215); }
 .nis2-statut { font-family: var(--serif); font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; }
 .nis2-avertissement { font-size: .8rem; color: var(--encre-2); margin-top: 12px; font-style: italic; }
