@@ -1,16 +1,19 @@
-// Analyse du consultant — fonction serverless Vercel (v2 IA).
+// Analyse du consultant — fonction serverless Vercel (v2 IA, moteur Gemini).
 // Le moteur de scoring (src/engine.js) reste seul juge des notes : ici, l'IA REDIGE, elle ne note pas.
 //
 // Sécurité by design :
 // - Aucun texte libre de l'utilisateur n'entre dans le prompt : secteur/effectif sont validés
 //   par liste blanche, les noms de domaines/risques/actions viennent de NOTRE référentiel
 //   (revalidés contre lui côté serveur) → surface d'injection de prompt quasi nulle.
-// - Corps de requête plafonné, max_tokens capé, rate-limit par IP (best effort sur lambda chaude).
+// - Corps de requête plafonné, sortie capée, rate-limit par IP (best effort sur lambda chaude).
 // - Sans clé API configurée : 503 propre, le front masque la section — le site ne casse jamais.
+//
+// Fournisseur : API Gemini (tier gratuit, aucune donnée personnelle dans le prompt).
+// L'architecture est multi-fournisseur : seul ce fichier change si on rebranche Claude & co.
 
-const Anthropic = require("@anthropic-ai/sdk");
 const { DOMAINES, PROFIL } = require("../data/questions.js");
 
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 const MAX_BODY = 8 * 1024;
 const RATE_LIMIT = { max: 6, windowMs: 60_000 };
 const buckets = globalThis.__sentinelleBuckets || (globalThis.__sentinelleBuckets = new Map());
@@ -68,7 +71,7 @@ module.exports = async (req, res) => {
     res.statusCode = 405;
     return res.end(JSON.stringify({ error: "POST uniquement" }));
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     res.statusCode = 503;
     return res.end(JSON.stringify({ error: "Analyse IA non configurée" }));
   }
@@ -97,16 +100,22 @@ module.exports = async (req, res) => {
   ].join("\n");
 
   try {
-    const client = new Anthropic();
-    const reponse = await client.messages.create({
-      model: "claude-opus-5",
-      max_tokens: 700,
-      system: SYSTEME,
-      messages: [{ role: "user", content: contexte }],
+    const appel = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": process.env.GEMINI_API_KEY,
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEME }] },
+        contents: [{ role: "user", parts: [{ text: contexte }] }],
+        generationConfig: { maxOutputTokens: 1200, temperature: 0.7 },
+      }),
     });
-    const texte = reponse.content
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
+    if (!appel.ok) throw new Error(`Gemini HTTP ${appel.status}`);
+    const data = await appel.json();
+    const texte = (data.candidates?.[0]?.content?.parts || [])
+      .map((p) => p.text || "")
       .join("")
       .trim();
     if (!texte) throw new Error("réponse vide");
@@ -120,4 +129,3 @@ module.exports = async (req, res) => {
 };
 
 module.exports.valider = valider; // exposé pour les tests
-

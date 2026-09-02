@@ -207,7 +207,7 @@
         <h2>Lecture du consultant</h2>
         <div class="carte consultant-carte">
           <div id="consultant-contenu" class="consultant-attente">Analyse en cours de rédaction…</div>
-          <p class="consultant-note">Rédigée par IA (Claude) à partir de vos seuls résultats chiffrés — le score, lui, est calculé par un moteur déterministe.</p>
+          <p class="consultant-note">Rédigée par IA à partir de vos seuls résultats chiffrés — le score, lui, est calculé par un moteur déterministe.</p>
         </div>
       </div>
 
