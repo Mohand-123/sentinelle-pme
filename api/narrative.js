@@ -109,7 +109,9 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEME }] },
         contents: [{ role: "user", parts: [{ text: contexte }] }],
-        generationConfig: { maxOutputTokens: 1200, temperature: 0.7 },
+        // thinkingBudget: 0 → les modèles 2.5 « réfléchissent » par défaut et ces tokens
+        // comptent dans maxOutputTokens ; sans ça, l'analyse sort tronquée.
+        generationConfig: { maxOutputTokens: 1200, temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } },
       }),
     });
     if (!appel.ok) throw new Error(`Gemini HTTP ${appel.status}`);
@@ -117,7 +119,9 @@ module.exports = async (req, res) => {
     const texte = (data.candidates?.[0]?.content?.parts || [])
       .map((p) => p.text || "")
       .join("")
-      .trim();
+      .trim()
+      // le modèle répète parfois le titre de section malgré la consigne — on le retire
+      .replace(/^lecture du consultant\s*:?\s*\n+/i, "");
     if (!texte) throw new Error("réponse vide");
     res.statusCode = 200;
     return res.end(JSON.stringify({ narrative: texte }));
