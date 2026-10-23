@@ -97,6 +97,17 @@ function perimetreNis2(profil, secteursNis2) {
   return { statut: "hors", texte: "Votre secteur ne figure pas directement dans les annexes NIS2. Vos clients ou donneurs d'ordres régulés peuvent toutefois vous imposer des exigences par contrat (chaîne d'approvisionnement)." };
 }
 
+// Comparaison de deux audits (ancien -> récent) : écarts en points de pourcentage.
+// `avant` et `apres` : { global, parDomaine: [{ id, nom, pct }] }.
+function comparerAudits(avant, apres) {
+  const ancien = new Map((avant.parDomaine || []).map((d) => [d.id, d.pct]));
+  const parDomaine = apres.parDomaine
+    .filter((d) => ancien.has(d.id))
+    .map((d) => ({ id: d.id, nom: d.nom, delta: d.pct - ancien.get(d.id) }));
+  const delta = apres.global - avant.global;
+  return { delta, tendance: delta > 0 ? "hausse" : delta < 0 ? "baisse" : "stable", parDomaine };
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { POINTS, NIVEAUX, scorerDomaine, scorerAudit, planAction, topRisques, perimetreNis2 };
+  module.exports = { POINTS, NIVEAUX, scorerDomaine, scorerAudit, planAction, topRisques, perimetreNis2, comparerAudits };
 }

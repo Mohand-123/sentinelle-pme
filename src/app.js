@@ -15,6 +15,7 @@
 
   const etat = {
     profil: { secteur: null, effectif: null },
+    nom: "",
     reponses: {},
     index: 0,
   };
@@ -26,6 +27,12 @@
   }
 
   /* ---------- Écran accueil ---------- */
+
+  function echapper(t) {
+    const d = document.createElement("div");
+    d.textContent = t;
+    return d.innerHTML;
+  }
 
   function initAccueil() {
     const selSecteur = $("#profil-secteur");
@@ -39,6 +46,7 @@
     $("#btn-commencer").addEventListener("click", () => {
       etat.profil.secteur = selSecteur.value;
       etat.profil.effectif = selEffectif.value;
+      etat.nom = $("#profil-nom").value.trim();
       etat.index = 0;
       afficher("questions");
       rendreQuestion();
@@ -110,11 +118,77 @@
     "90j": "🟡 Sous 90 jours — à planifier",
   };
 
-  function rendreRapport() {
+  const CLE_HISTORIQUE = "sentinelle-pme:dernier-audit";
+
+  function lireDernierAudit() {
+    try {
+      const brut = localStorage.getItem(CLE_HISTORIQUE);
+      const audit = brut ? JSON.parse(brut) : null;
+      return audit && typeof audit.global === "number" && Array.isArray(audit.parDomaine) ? audit : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function sauverAudit(resultat) {
+    try {
+      localStorage.setItem(
+        CLE_HISTORIQUE,
+        JSON.stringify({
+          date: new Date().toISOString(),
+          global: resultat.global,
+          parDomaine: resultat.parDomaine.map((d) => ({ id: d.id, nom: d.nom, pct: d.pct })),
+        })
+      );
+    } catch (e) {
+      /* stockage indisponible : le rapport fonctionne sans historique */
+    }
+  }
+
+  const signe = (n) => (n > 0 ? `+${n}` : `${n}`);
+
+  function blocEvolution(precedent, resultat) {
+    if (!precedent) return "";
+    const cmp = comparerAudits(precedent, resultat);
+    const quand = new Date(precedent.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    const lignes = cmp.parDomaine
+      .filter((d) => d.delta !== 0)
+      .map((d) => `<li><span>${d.nom}</span> <strong class="${d.delta > 0 ? "texte-solide" : "texte-critique"}">${signe(d.delta)} pts</strong></li>`)
+      .join("");
+    const titre = { hausse: "Progression", baisse: "Recul", stable: "Score inchangé" }[cmp.tendance];
+    return `
+      <div class="rapport-section">
+        <h2>Évolution depuis votre dernier audit</h2>
+        <div class="carte evolution-carte">
+          <div class="evolution-titre">${titre} : ${precedent.global}% → ${resultat.global}% (<strong>${signe(cmp.delta)} pts</strong>) · audit du ${quand}</div>
+          ${lignes ? `<ul class="evolution-liste">${lignes}</ul>` : "<p>Aucun domaine n'a changé de score.</p>"}
+        </div>
+      </div>`;
+  }
+
+  function exporterPlanCsv(plan) {
+    const cellule = (t) => `"${String(t).replace(/"/g, '""')}"`;
+    const lignes = [["Horizon", "Domaine", "Action", "Effort", "Références"]].concat(
+      plan.actions
+        .slice()
+        .sort((a, b) => a.horizon.localeCompare(b.horizon))
+        .map((a) => [a.horizon, a.domaine, a.label, a.effort, a.refs.join(" ; ")])
+    );
+    const csv = "﻿" + lignes.map((l) => l.map(cellule).join(";")).join("\r\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "plan-action-sentinelle.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function rendreRapport(options = {}) {
     const resultat = scorerAudit(DOMAINES, etat.reponses);
     const risques = topRisques(DOMAINES, etat.reponses, 3);
     const plan = planAction(DOMAINES, etat.reponses);
     const nis2 = perimetreNis2(etat.profil, PROFIL.secteursNis2);
+    const precedent = options.demo ? null : lireDernierAudit();
     const date = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
     const barres = resultat.parDomaine
@@ -122,7 +196,7 @@
         (d) => `
       <div class="barre-domaine">
         <span>${d.icone} ${d.nom}</span>
-        <div class="barre-fond"><div class="barre-remplie niveau-${d.niveau.classe}" style="width:${d.pct}%"></div></div>
+        <div class="barre-fond"><div class="barre-remplie niveau-${d.niveau.classe}" data-pct="${d.pct}"></div></div>
         <span class="barre-pct texte-${d.niveau.classe}">${d.pct}%</span>
       </div>`
       )
@@ -172,11 +246,12 @@
     $("#conteneur-rapport").innerHTML = `
       <div class="rapport-entete">
         <h1>Sentinelle PME — rapport d'audit flash</h1>
+        ${etat.nom ? `<div class="rapport-nom">${echapper(etat.nom)}</div>` : ""}
         <div class="rapport-date">${etat.profil.secteur} · ${etat.profil.effectif} · généré le ${date}</div>
       </div>
 
       <div class="score-global">
-        <div class="score-anneau anneau-${resultat.niveau.classe}" style="--pct:${resultat.global}" role="img" aria-label="Score global : ${resultat.global}%">
+        <div class="score-anneau anneau-${resultat.niveau.classe}" data-pct="${resultat.global}" role="img" aria-label="Score global : ${resultat.global}%">
           <div class="score-coeur">
             <span class="pct">${resultat.global}%</span>
             <span class="sur">maturité globale</span>
@@ -187,6 +262,8 @@
           <p>${resultat.niveau.phrase}</p>
         </div>
       </div>
+
+      ${blocEvolution(precedent, resultat)}
 
       <div class="rapport-section">
         <h2>Maturité par domaine</h2>
@@ -224,9 +301,20 @@
       </div>
 
       <div class="rapport-actions">
-        <button class="btn btn-principal" style="width:auto" onclick="window.print()">🖨️ Imprimer / exporter en PDF</button>
+        <button class="btn btn-principal btn-auto" id="btn-imprimer">🖨️ Imprimer / exporter en PDF</button>
+        <button class="btn btn-secondaire btn-auto" id="btn-export">⬇️ Plan d'action (CSV)</button>
         <button class="btn btn-secondaire" id="btn-refaire">↺ Refaire l'audit</button>
       </div>`;
+
+    /* Styles posés via le CSSOM (la CSP interdit les attributs style= en HTML) */
+    document.querySelectorAll("#conteneur-rapport [data-pct]").forEach((el) => {
+      const pct = Number(el.dataset.pct);
+      if (el.classList.contains("score-anneau")) el.style.setProperty("--pct", pct);
+      else el.style.width = `${pct}%`;
+    });
+    $("#btn-imprimer").addEventListener("click", () => window.print());
+    $("#btn-export").addEventListener("click", () => exporterPlanCsv(plan));
+    if (!options.demo) sauverAudit(resultat);
 
     $("#btn-refaire").addEventListener("click", () => {
       etat.reponses = {};
@@ -287,8 +375,9 @@
 
   function lancerDemo() {
     etat.profil = { secteur: "Santé", effectif: "50 à 249 salariés" };
+    etat.nom = "";
     etat.reponses = { ...REPONSES_DEMO };
-    rendreRapport();
+    rendreRapport({ demo: true });
     afficher("rapport");
   }
 

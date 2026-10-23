@@ -2,7 +2,7 @@
 // Vérifie les invariants du moteur sans navigateur.
 
 const { DOMAINES, PROFIL } = require("../data/questions.js");
-const { scorerAudit, planAction, topRisques, perimetreNis2 } = require("../src/engine.js");
+const { scorerAudit, planAction, topRisques, perimetreNis2, comparerAudits } = require("../src/engine.js");
 
 let echecs = 0;
 function verifier(nom, condition) {
@@ -76,6 +76,13 @@ try {
 } catch (e) {
   console.log(`⚠️ Tests API sautés (SDK non installé localement : ${e.code || e.message})`);
 }
+
+// Comparaison de deux audits.
+const cmpHausse = comparerAudits(nul, parfait);
+verifier("comparaison 0% -> 100% : +100 pts, hausse", cmpHausse.delta === 100 && cmpHausse.tendance === "hausse");
+verifier("comparaison identique : stable", comparerAudits(moitie, moitie).tendance === "stable");
+verifier("comparaison inverse : baisse", comparerAudits(parfait, nul).tendance === "baisse");
+verifier("comparaison : un écart par domaine", cmpHausse.parDomaine.length === DOMAINES.length);
 
 console.log(echecs === 0 ? "\n🎉 Tous les tests passent." : `\n💥 ${echecs} test(s) en échec.`);
 process.exit(echecs === 0 ? 0 : 1);
