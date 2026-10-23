@@ -12,16 +12,21 @@
   <meta property="og:image" content="https://sentinelle-pme.vercel.app/og.png">
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E%F0%9F%9B%A1%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%23171a1f'/%3E%3Cg fill='%23454c57'%3E%3Crect x='4' y='4' width='4' height='4'/%3E%3Crect x='10' y='4' width='4' height='4'/%3E%3Crect x='16' y='4' width='4' height='4'/%3E%3Crect x='4' y='10' width='4' height='4'/%3E%3Crect x='16' y='10' width='4' height='4'/%3E%3Crect x='4' y='16' width='4' height='4'/%3E%3Crect x='10' y='16' width='4' height='4'/%3E%3C/g%3E%3Crect x='10' y='10' width='4' height='4' fill='%23c6f135'/%3E%3Crect x='16' y='16' width='4' height='4' fill='%23c6f135'/%3E%3C/svg%3E">
   <link rel="preload" href="fonts/public-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/geist-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="barre-lecture" aria-hidden="true"></div>
 
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🛡️ <strong>Sentinelle</strong> PME</div>
+      <div class="logo">
+        <svg class="logo-marque" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect class="m-fond" width="24" height="24" rx="4"/><g class="m-cases"><rect x="4" y="4" width="4" height="4"/><rect x="10" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="10" width="4" height="4"/><rect x="16" y="10" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><rect x="10" y="16" width="4" height="4"/></g><rect class="m-signal" x="10" y="10" width="4" height="4"/><rect class="m-signal m-signal-2" x="16" y="16" width="4" height="4"/></svg>
+        <span><strong>Sentinelle</strong> PME</span>
+      </div>
       <div class="topbar-note">Basé sur le guide d'hygiène ANSSI &amp; la directive NIS2 · Gratuit · Sans compte · Nom de l'entreprise jamais envoyé</div>
     </div>
   </header>
@@ -32,6 +37,10 @@
     <section id="ecran-accueil" class="ecran">
       <div class="hero">
         <div class="hero-texte">
+          <div class="matrice-hero-bloc">
+            <div class="matrice-hero" aria-hidden="true"></div>
+            <p class="matrice-legende">24 points de contrôle · 8 domaines · 3 questions chacun</p>
+          </div>
           <h1>Où en est la cybersécurité de votre entreprise&nbsp;?</h1>
           <p class="hero-sub">24 questions, 10 minutes, sans jargon. À la fin&nbsp;: votre score de maturité,
           vos 3 risques principaux et un plan d'action priorisé sur 30, 60 et 90 jours.</p>
@@ -61,6 +70,7 @@
       <div class="progression">
         <div class="progression-texte" id="progression-texte"></div>
         <div class="progression-barre"><div id="progression-remplie"></div></div>
+        <div class="segments" id="segments" aria-hidden="true"></div>
       </div>
       <div id="conteneur-question"></div>
     </section>
