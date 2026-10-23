@@ -74,16 +74,23 @@
     // Lueur qui suit le pointeur sur l'accueil
     const hero = $("#ecran-accueil");
     let attente = false;
-    hero.addEventListener("pointermove", (e) => {
-      if (attente || reduit) return;
-      attente = true;
-      requestAnimationFrame(() => {
-        const r = hero.getBoundingClientRect();
-        hero.style.setProperty("--mx", e.clientX - r.left + "px");
-        hero.style.setProperty("--my", e.clientY - r.top + "px");
-        attente = false;
-      });
-    });
+    let curseur = null;
+    const placerLueur = () => {
+      attente = false;
+      if (!curseur || ecrans.accueil.hidden) return;
+      // Le fond (::before) déborde de la section : à gauche de (50% - 50vw), 40 px plus haut.
+      // On exprime donc le curseur dans le repère de ce fond, pas de la section.
+      const r = hero.getBoundingClientRect();
+      const gauche = r.left + r.width / 2 - window.innerWidth / 2;
+      hero.style.setProperty("--mx", curseur.x - gauche + "px");
+      hero.style.setProperty("--my", curseur.y - (r.top - 40) + "px");
+    };
+    const planifier = () => { if (!attente) { attente = true; requestAnimationFrame(placerLueur); } };
+    if (!reduit) {
+      // Écoute sur toute la page : le fond sombre est pleine largeur, pas seulement la colonne centrale
+      document.addEventListener("pointermove", (e) => { curseur = { x: e.clientX, y: e.clientY }; planifier(); }, { passive: true });
+      addEventListener("scroll", planifier, { passive: true });
+    }
     // Raccourcis clavier du questionnaire : 1 / 2 / 3, flèche gauche = retour
     document.addEventListener("keydown", (e) => {
       if (ecrans.questions.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
